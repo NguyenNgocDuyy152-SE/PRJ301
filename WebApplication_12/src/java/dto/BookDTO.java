@@ -7,9 +7,10 @@ package dto;
 
 /**
  *
- * @author anhqu
+ * @author tungi
  */
 public class BookDTO {
+
     private String bookID;
     private String title;
     private String author;
@@ -18,6 +19,12 @@ public class BookDTO {
     private int quantity;
 
     public BookDTO() {
+        this.bookID = "";
+        this.title = "";
+        this.author = "";
+        this.publishYear = 0;
+        this.price = 0;
+        this.quantity = 0;
     }
 
     public BookDTO(String bookID, String title, String author, int publishYear, double price, int quantity) {
@@ -76,5 +83,5 @@ public class BookDTO {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-    
+
 }
