@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/src/java/controller/MainController.java</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/web/index.html</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/src/java/utils/DBUtils.java</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/src/java/dto/ProjectDTO.java</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/web/searchProject.jsp</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/web/dashboard.jsp</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/web/logout.jsp</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/web/users.sql</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/src/java/dto/UserDTO.java</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/web/projects.jsp</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/src/java/dao/UserDAO.java</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/web/login.jsp</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/web/createProject.jsp</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/web/updateProject.jsp</file>
+            <file>file:/C:/Users/Huy/Documents/GitHub/PRJ301/Workshop01/src/java/dao/ProjectDAO.java</file>
+        </group>
+    </open-files>
+</project-private>
