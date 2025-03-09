@@ -15,8 +15,8 @@ import javax.servlet.http.HttpSession;
  */
 public class AuthUtils {
 
-    public static final String ADMIN_ROLE = "AD";
-    public static final String USER_TOLE = "US";
+    public static final String ADMIN_ROLE = "Founder";
+    public static final String USER_TOLE = "Team Member";
 
     public static UserDTO getUser(String strUserID) {
         UserDAO udao = new UserDAO();
@@ -46,6 +46,6 @@ public class AuthUtils {
             return false;
         }
         UserDTO user = (UserDTO) session.getAttribute("user");
-        return user.getRoleID().equals(ADMIN_ROLE);
+        return user.getRole().equals(ADMIN_ROLE);
     }
 }

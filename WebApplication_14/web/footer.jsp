@@ -1,3 +1,9 @@
+<%-- 
+    Document   : footer
+    Created on : Feb 17, 2025, 10:54:49 AM
+    Author     : anhqu
+--%>
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <style>
     .footer {
