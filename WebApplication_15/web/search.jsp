@@ -55,7 +55,6 @@
                 background-color: #f5f5f5;
                 transition: 0.3s ease;
             }
-
             /* Search section styles */
             .search-section {
                 background-color: #fff;
@@ -134,7 +133,6 @@
                 margin-right: 5px;
                 font-weight: bold;
             }
-
             /* Responsive design */
             @media screen and (max-width: 600px) {
                 .book-table {
@@ -151,7 +149,11 @@
     <body> 
         <%@include file="header.jsp" %>
         <div style="min-height: 500px; padding: 10px">
-            <c:if test="${not empty sessionScope.user}">
+            <c:set var="isLoggedIn" value="<%=AuthUtils.isLoggedIn(session)%>"/>
+            <c:set var="isAdmin" value="<%=AuthUtils.isAdmin(session)%>"/>
+
+
+            <c:if test="${isLoggedIn}">
                 <c:set var="searchTerm" value="${requestScope.searchTerm==null?'':requestScope.searchTerm}" />
                 <div class="search-section">
                     <form action="MainController">
@@ -161,18 +163,17 @@
                         <input type="submit" value="Search" class="search-btn"/>
                     </form>
                 </div>
-                <c:set var="isAdmin" value="<%=AuthUtils.isAdmin(session)%>" />
                 <c:if test="${isAdmin}">
                     <a href="bookForm.jsp" class="add-btn">
-                        Add New Book    
-                    </a> 
+                        Add
+                    </a>
                 </c:if>
-
                 <c:if test="${not empty requestScope.books}">
                     <table class="book-table">
                         <thead>
                             <tr>
                                 <th>BookID</th>
+                                <th>Image</th>
                                 <th>Title</th>
                                 <th>Author</th>
                                 <th>PublishYear</th>
@@ -187,25 +188,27 @@
                             <c:forEach var="b" items="${requestScope.books}">
                                 <tr>
                                     <td>${b.bookID}</td>
+                                    <td><img src="${b.image}" width="150px" /></td>
                                     <td>${b.title}</td>
                                     <td>${b.author}</td>
                                     <td>${b.publishYear}</td>
                                     <td>${b.price}</td>
                                     <td>${b.quantity}</td>
                                     <c:if test="${isAdmin}">
-                                        <td><a href="MainController?action=delete&id=${b.bookID}&searchTerm=${searchTerm}">
-                                                <img src="assets/images/delete-icon.png" style="height: 25px"/>
-
-                                            </a></td>
+                                    <td><a href="MainController?action=edit&id=${b.bookID}&searchTerm=${searchTerm}">
+                                            <img src="assets/images/edit-icon.png"  style="height: 25px"/>                              
+                                        </a><a href="MainController?action=delete&id=${b.bookID}&searchTerm=${searchTerm}">
+                                            <img src="assets/images/delete-icon.png"  style="height: 25px"/>                              
+                                        </a></td>
                                     </c:if>
                                 </tr>
                             </c:forEach>
                         </tbody>
                     </table>
                 </c:if>
-                <c:if test="${not isAdmin}">
-                    You do not have permission to access this content.
-                </c:if>
+            </c:if>
+            <c:if test="${!isLoggedIn}">
+                You do not have permission to access this content.
             </c:if>
         </div>
         <jsp:include page="footer.jsp"/>

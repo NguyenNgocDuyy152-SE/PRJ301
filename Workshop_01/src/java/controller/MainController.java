@@ -43,7 +43,7 @@ public class MainController extends HttpServlet {
             session.setAttribute("user", user);
             session.setAttribute("role", user.getRole());
 
-            url = PROJECTS_PAGE; // Điều hướng đến projects.jsp nếu login thành công
+            url = PROJECTS_PAGE;
         } else {
             request.setAttribute("message", "Incorrect UserID or Password");
         }
@@ -52,49 +52,45 @@ public class MainController extends HttpServlet {
 
     private String processSearch(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String url = "projects.jsp"; // Đảm bảo trỏ đến đúng trang dự án
+        String url = "projects.jsp";
         HttpSession session = request.getSession();
 
         if (AuthUtils.isLoggedIn(session)) {
             String role = (String) session.getAttribute("role");
             if ("Founder".equals(role)) {
-                // Lấy từ khóa tìm kiếm
                 String searchTerm = request.getParameter("searchTerm");
                 if (searchTerm == null) {
                     searchTerm = "";
                 }
 
-                // Thực hiện tìm kiếm
                 List<ProjectDTO> projectList = projectDAO.search(searchTerm);
 
-                // Đặt kết quả tìm kiếm vào request
                 request.setAttribute("projectList", projectList);
                 request.setAttribute("searchTerm", searchTerm);
             } else {
                 request.setAttribute("message", "You do not have permission to search.");
             }
         } else {
-            url = LOGIN_PAGE; // Nếu chưa đăng nhập, chuyển hướng về trang login
+            url = LOGIN_PAGE;
         }
         return url;
     }
 
     private String processCreateProject(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String url = "createProject.jsp"; // Trả về trang tạo dự án nếu có lỗi
+        String url = "createProject.jsp";
         HttpSession session = request.getSession();
 
         if (AuthUtils.isLoggedIn(session)) {
             String role = (String) session.getAttribute("role");
             if ("Founder".equals(role)) {
-                // Lấy thông tin từ form
+
                 boolean checkError = false;
                 String projectName = request.getParameter("project_name");
                 String description = request.getParameter("description");
                 String status = request.getParameter("status");
                 String launchDateStr = request.getParameter("estimated_launch");
 
-                // Kiểm tra rỗng hoặc chỉ chứa khoảng trắng
                 if (projectName == null || projectName.trim().isEmpty()) {
                     checkError = true;
                     request.setAttribute("projectName_error", "Project name cannot be empty.");
@@ -105,12 +101,10 @@ public class MainController extends HttpServlet {
                     request.setAttribute("description_error", "Description cannot be empty.");
                 }
 
-                // Kiểm tra ngày hợp lệ
                 java.sql.Date launchDate = null;
                 try {
                     launchDate = java.sql.Date.valueOf(launchDateStr);
 
-                    // Kiểm tra nếu ngày nhỏ hơn hoặc bằng hôm nay
                     java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
                     if (!launchDate.after(today)) {
                         checkError = true;
@@ -124,12 +118,11 @@ public class MainController extends HttpServlet {
                     request.setAttribute("date_error", "Invalid date format.");
                 }
 
-                // Nếu không có lỗi, tạo dự án
                 if (!checkError) {
                     ProjectDTO newProject = new ProjectDTO(0, projectName, description, status, launchDate);
                     projectDAO.create(newProject);
                     request.setAttribute("message", "Project created successfully!");
-                    url = "projects.jsp"; // Chuyển hướng về danh sách dự án nếu thành công
+                    url = "projects.jsp";
                 }
             } else {
                 request.setAttribute("message", "You do not have permission to create a project.");
@@ -155,11 +148,10 @@ public class MainController extends HttpServlet {
         if (session == null || session.getAttribute("user") == null) {
             return LOGIN_PAGE;
         }
-        // Kiểm tra quyền Founder
         String role = (String) session.getAttribute("role");
         if (!"Founder".equals(role)) {
             request.setAttribute("message", "You do not have permission to update projects.");
-            return "projects.jsp"; // Hoặc trang lỗi nào đó
+            return "projects.jsp";
         }
 
         try {
@@ -176,7 +168,7 @@ public class MainController extends HttpServlet {
             request.setAttribute("message", "Invalid project ID.");
         }
 
-        return "projects.jsp"; // Load lại trang projects.jsp để thấy thay đổi
+        return "projects.jsp";
     }
 
     private String processViewAllProjects(HttpServletRequest request, HttpServletResponse response)
@@ -188,7 +180,7 @@ public class MainController extends HttpServlet {
             List<ProjectDTO> projects = projectDAO.readAll();
             request.setAttribute("projectList", projects);
         } else {
-            url = LOGIN_PAGE; // Nếu chưa đăng nhập, chuyển hướng về login
+            url = LOGIN_PAGE;
         }
         return url;
     }
