@@ -1,10 +1,12 @@
 package controller;
 
 import dao.ExamDAO;
+import dao.UserDAO;
 import dto.ExamCategoryDTO;
+import dto.ExamDTO;
 import dto.UserDTO;
-import utils.AuthUtils;
 import java.io.IOException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -19,115 +21,165 @@ public class MainController extends HttpServlet {
 
     private static final String LOGIN_PAGE = "login.jsp";
     private static final String DASHBOARD_PAGE = "dashboard.jsp";
+    private static final String VIEW_EXAMS_BY_CATEGORY_PAGE = "viewExamsByCategory.jsp";
+    private static final String CREATE_EXAM_PAGE = "createExam.jsp";
 
-    private String processLogin(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String url = LOGIN_PAGE;
-
-        String strUserID = request.getParameter("txtUserID");
-        String strPassword = request.getParameter("txtPassword");
-
-        if (AuthUtils.isValidLogin(strUserID, strPassword)) {
-            UserDTO user = AuthUtils.getUser(strUserID);
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-            session.setAttribute("role", user.getRole());
-
-            url = processViewExamCategories(request, response);
-        } else {
-            request.setAttribute("message", "Incorrect UserID or Password");
-        }
-        return url;
-    }
-
-    private String processLogout(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String url = LOGIN_PAGE;
-        HttpSession session = request.getSession();
-        if (AuthUtils.isLoggedIn(session)) {
-            request.getSession().invalidate(); // Hủy session
-            url = "login.jsp";
-        }
-        return url;
-    }
-
-    private String processViewExamCategories(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        UserDTO user = (UserDTO) session.getAttribute("user");
-
-        if (user == null) {
-            return LOGIN_PAGE;
-        }
-
-        // Lấy danh sách danh mục kỳ thi
-        ExamDAO examDAO = new ExamDAO();
-        List<ExamCategoryDTO> categoryList = examDAO.getAllExamCategories();
-        request.setAttribute("categoryList", categoryList);
-
-        return DASHBOARD_PAGE; // Trả về dashboard nhưng có dữ liệu danh mục kỳ thi
-    }
+    private ExamDAO examDAO = new ExamDAO();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
-        String url = LOGIN_PAGE;
 
+        String url = LOGIN_PAGE;
         try {
             String action = request.getParameter("action");
-            if (action == null) {
-                url = LOGIN_PAGE;
-            } else {
-                if (action.equals("login")) {
-                    url = processLogin(request, response);
-                } else if (action.equals("logout")) {
-                    url = processLogout(request, response);
+            if (action != null) {
+                switch (action) {
+                    case "login":
+                        url = processLogin(request, response);
+                        break;
+                    case "logout":
+                        url = processLogout(request, response);
+                        break;
+                    case "viewExamsByCategory":
+                        url = processViewExamsByCategory(request, response);
+                        break;
+                    case "createExam":
+                        url = processCreateExam(request, response);
+                        break;
+                    default:
+                        request.setAttribute("message", "Invalid action.");
+                        break;
                 }
             }
         } catch (Exception e) {
-            log("Error at MainController: " + e.toString());
+            log("Error in MainController: " + e.getMessage());
         } finally {
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    private String processLogin(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, ClassNotFoundException {
+        String url = LOGIN_PAGE;
+        String username = request.getParameter("txtusername");
+        String password = request.getParameter("txtpassword");
+        UserDTO user = UserDAO.readById(username);
+
+        if (user != null && user.getPassword().equals(password)) {
+            HttpSession session = request.getSession();
+            session.setAttribute("user", user);
+            session.setAttribute("role", user.getRole());
+
+            List<ExamCategoryDTO> categories = examDAO.getAllCategories();
+            session.setAttribute("examCategories", categories);
+
+            url = DASHBOARD_PAGE;
+        } else {
+            request.setAttribute("message", "Incorrect username or password.");
+        }
+        return url;
+    }
+
+    private String processLogout(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return LOGIN_PAGE;
+    }
+
+    private String processViewExamsByCategory(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, ClassNotFoundException {
+        String url = DASHBOARD_PAGE;
+        HttpSession session = request.getSession(false);
+
+        if (session != null && session.getAttribute("user") != null) {
+            String categoryIdStr = request.getParameter("categoryId");
+            try {
+                int categoryId = Integer.parseInt(categoryIdStr);
+                List<ExamDTO> exams = examDAO.getExamsByCategory(categoryId);
+                request.setAttribute("exams", exams);
+                url = VIEW_EXAMS_BY_CATEGORY_PAGE;
+            } catch (NumberFormatException e) {
+                request.setAttribute("message", "Invalid category ID format.");
+            }
+        } else {
+            request.setAttribute("message", "Please login to view exams.");
+        }
+        return url;
+    }
+
+private String processCreateExam(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, ClassNotFoundException {
+        String url = LOGIN_PAGE;
+        HttpSession session = request.getSession();
+
+        if ("Instructor".equals(session.getAttribute("role"))) {
+            String examTitle = request.getParameter("examTitle");
+            String subject = request.getParameter("subject");
+            String categoryIdStr = request.getParameter("categoryId");
+            String totalMarksStr = request.getParameter("totalMarks");
+            String durationStr = request.getParameter("duration");
+            request.removeAttribute("errorMessage");
+            if (examTitle == null || examTitle.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "Exam title cannot be empty.");
+                url = CREATE_EXAM_PAGE;
+            } else if (subject == null || subject.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "Subject cannot be empty.");
+                url = CREATE_EXAM_PAGE;
+            } else if (categoryIdStr == null || categoryIdStr.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "Category is required.");
+                url = CREATE_EXAM_PAGE;
+            } else {
+                if (!Character.isUpperCase(examTitle.charAt(0))) {
+                    request.setAttribute("errorMessage", "Exam title must start with an uppercase letter.");
+                    url = CREATE_EXAM_PAGE;
+                } else if (!Character.isUpperCase(subject.charAt(0))) {
+                    request.setAttribute("errorMessage", "Subject must start with an uppercase letter.");
+                    url = CREATE_EXAM_PAGE;
+                } else {
+                    try {
+                        int categoryId = Integer.parseInt(categoryIdStr);
+                        int totalMarks = Integer.parseInt(totalMarksStr);
+                        int duration = Integer.parseInt(durationStr);
+
+                        if (totalMarks <= 0 || duration <= 0) {
+                            request.setAttribute("errorMessage", "Total Marks and Duration must be greater than 0.");
+                            url = CREATE_EXAM_PAGE;
+                        } else {
+                            ExamDTO exam = new ExamDTO(0, examTitle, subject, categoryId, totalMarks, duration);
+                            examDAO.createExam(exam);
+                            List<ExamDTO> exams = examDAO.getExamsByCategory(categoryId);
+                            request.setAttribute("exams", exams);
+                            url = "viewExamsByCategory.jsp?categoryId=" + categoryId;
+                        }
+                    } catch (NumberFormatException e) {
+                        request.setAttribute("errorMessage", "Invalid number format for Category ID, Total Marks or Duration.");
+                        url = CREATE_EXAM_PAGE;
+                    }
+                }
+}
+        }
+
+        return url;
+    }
+
+
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 }

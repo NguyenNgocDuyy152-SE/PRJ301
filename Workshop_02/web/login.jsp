@@ -15,14 +15,15 @@
         <form action="MainController" method="post">
             <input type="hidden" name="action" value="login" />
 
-            <input type="text" name="txtUserID" placeholder="Username" required />
-            <input type="password" name="txtPassword" placeholder="Password" required />
-            <button type="submit">Login</button>
-            <div class="message">
-                <% String message = (String) request.getAttribute("message"); %>
-                <% if (message != null) {%>
-                <%= message%>
-                <% }%>
-            </div>
+            Username: <input type="text" name="txtusername" required /><br/>
+            Password: <input type="password" name="txtpassword" required /><br/>
+            <button type="submit">Login</button><br/>
+        </form>
+        <div>
+            <% String message = (String) request.getAttribute("message"); %>
+            <% if (message != null) {%>
+            <div style="color: red;"><%= message%></div>
+            <% }%>
+        </div>
     </body>
 </html>

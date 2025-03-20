@@ -7,47 +7,59 @@
         response.sendRedirect("login.jsp");
         return;
     }
-
-    List<ExamCategoryDTO> categoryList = (List<ExamCategoryDTO>) request.getAttribute("categoryList");
+    String role = user.getRole();
+    List<ExamCategoryDTO> categories = (List<ExamCategoryDTO>) session.getAttribute("examCategories");
 %>
 
 <html>
     <head>
-        <title>Exam Dashboard</title>
+        <title>Dashboard</title>
     </head>
     <body>
         <h2>Welcome, <%= user.getName()%>!</h2>
+        <p>You are logged in as: <%= user.getRole()%></p>
 
-        <h3>Exam Categories</h3>
-        <% if (categoryList != null && !categoryList.isEmpty()) { %>
-        <table border="1">
-            <tr>
-                <th>Category Name</th>
-                <th>Description</th>
-            </tr>
-            <% for (ExamCategoryDTO category : categoryList) {%>
-            <tr>
-                <td><%= category.getCategoryName()%></td>
-                <td><%= category.getDescription()%></td>
-            </tr>
-            <% } %>
-        </table>
-        <% } else { %>
-        <p>No exam categories available.</p>
-        <% }%>
-
-        <h3>View Exams</h3>
-        <form action="ExamServlet" method="get">
-            <input type="hidden" name="action" value="viewExams">
-            <label>Category ID:</label>
-            <input type="text" name="category_id">
-            <button type="submit">View Exams</button>
-        </form>
-
-        <br>
-        <form action="MainController" method="post">
+        <form action="MainController" method="post" style="float: right;">
             <input type="hidden" name="action" value="logout">
             <button type="submit">Logout</button>
         </form>
+
+        <% if ("Instructor".equals(role)) { %>
+        <a href="createExam.jsp">Create New Exam</a>
+        <% } %>
+
+        <h2>Exam Categories</h2>
+        <table border="1">
+            <tr>
+
+                <th>Category Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+            <%
+                if (categories != null && !categories.isEmpty()) {
+                    for (ExamCategoryDTO category : categories) {
+            %>
+            <tr>
+                <td><%= category.getCategoryName()%></td>
+                <td><%= category.getDescription()%></td>
+                <td>
+                    <form action="MainController" method="POST">
+                        <input type="hidden" name="action" value="viewExamsByCategory"/>
+                        <input type="hidden" name="categoryId" value="<%= category.getCategoryId()%>"/>
+                        <button type="submit">View Exams</button>
+                    </form>
+                </td>            </tr>
+                <%
+                    }
+                } else {
+                %>
+            <tr>
+                <td colspan="3">No categories available.</td>
+            </tr>
+            <%
+                }
+            %>
+        </table>
     </body>
 </html>

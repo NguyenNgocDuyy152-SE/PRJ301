@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DBUtils {
-    private static final String DB_NAME = "ExamSystemDB";
+    private static final String DB_NAME = "OnlineExamination";
     private static final String DB_USERNAME = "sa";
     private static final String DB_PASSWORD= "12345";
     

@@ -1,20 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dto;
-
-/**
- *
- * @author anhqu
- */
 
 public class ExamDTO {
     private int examId;
     private String examTitle;
     private String subject;
-    private int categoryId;
+    private int categoryId;  
     private int totalMarks;
     private int duration;
 
@@ -88,8 +78,6 @@ public class ExamDTO {
 
     @Override
     public String toString() {
-        return "ExamDTO{" + "examId=" + examId + ", examTitle=" + examTitle + ", subject=" + subject + ", totalMarks=" + totalMarks + ", duration=" + duration + '}';
+        return "ExamDTO{" + "examId=" + examId + ", examTitle=" + examTitle + ", subject=" + subject + ", categoryId=" + categoryId + ", totalMarks=" + totalMarks + ", duration=" + duration + '}';
     }
-
 }
-

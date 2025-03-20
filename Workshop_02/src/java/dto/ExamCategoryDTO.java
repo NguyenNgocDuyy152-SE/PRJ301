@@ -46,11 +46,8 @@ public class ExamCategoryDTO {
 
     @Override
     public String toString() {
-        return "ExamCategoryDTO{" +
-                "categoryId=" + categoryId +
-                ", categoryName='" + categoryName + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+        return "ExamCategoryDTO{" + "categoryId=" + categoryId + ", categoryName=" + categoryName + ", description=" + description + '}';
     }
+
 }
 
